@@ -48,19 +48,22 @@ ActionChains(driver).move_to_element(acknowledge_checkbox).click(acknowledge_che
 ActionChains(driver).move_to_element(disclaimer_button).click(disclaimer_button).perform()
 time.sleep(1)
 
-def add_values():
+# create output file
+outputcolumns = ["Permit Number", "Legal Name", "Also doing business as", "Status", "Main Location"]
+current_datetime = datetime.now().strftime("%Y-%m-%d %H-%M")
+filename = current_datetime +" - Selenium.csv"
+
+# with open(filename,'w',newline='') as f:
+#     csv_writer = writer(f)
+#     csv_writer.writerow(outputcolumns)
+
+
+def add_values(filename):
     table = driver.find_elements(By.XPATH, "/html/body/div[1]/div[3]/div/div[2]/div/div[2]/table")
     num_row = len(driver.find_elements(By.XPATH, "/html/body/div[1]/div[3]/div/div[2]/div/div[2]/table/tbody/tr"))
     cells = driver.find_elements(By.XPATH, "/html/body/div[1]/div[3]/div/div[2]/div/div[2]/table/tbody/tr/td")
     num_col = int(len(cells)/num_row)
-
-    # create output file
-    outputcolumns = ["Unknown", "Permit Number", "Legal Name", "Also doing business as", "Status", "Main Location"]
-    current_datetime = datetime.now().strftime("%Y-%m-%d %H-%M")
-    filename = current_datetime +" - Selenium.csv"
-
     with open(filename,'w',newline='') as f:
-        csv_writer = writer(f)
         for i in range(0, num_row, 6):
             out_row = []
             for j in range(1,6):
@@ -68,6 +71,8 @@ def add_values():
                 out_row.append(value)
                 # print(out_row)
             csv_writer.writerow(out_row)
+
+add_values(filename)
 
 time.sleep(5)
 
