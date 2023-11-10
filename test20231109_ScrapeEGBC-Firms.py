@@ -7,8 +7,8 @@ base_url = 'https://tools.egbc.ca/Registrant-Directory/Firms/SearchResult'
 
 # scrape_multiple_pages(base_url, num_pages)
 
-response = requests.get(base_url)
-soup = BeautifulSoup(response.text, 'html.parser')
+# response = requests.get(base_url)
+# soup = BeautifulSoup(response.text, 'html.parser')
 
 # Replace 'table_selector' with the actual CSS selector of the table
 table = soup.select_one('table_selector')

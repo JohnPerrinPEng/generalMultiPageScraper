@@ -1,4 +1,6 @@
 import time
+from datetime import datetime
+from csv import writer
 from bs4 import BeautifulSoup as bs
 import pandas as pd 
 from selenium import webdriver 
@@ -6,20 +8,20 @@ from selenium.webdriver import Chrome
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.action_chains import ActionChains 
 
-def parse_egbc_url(url): 
-	# get the first url 
-	url = url.split(', ')[0] 
-	# split it by '/' 
-	splitted_url = url.split('/') 
-	# loop over the elements to find where 'cloudfront' url begins 
-	for idx, part in enumerate(splitted_url): 
-		if 'cloudfront' in part: 
-			# add the HTTP scheme and concatenate the rest of the URL 
-			# then return the processed url 
-			return 'https://' + '/'.join(splitted_url[idx:]) 
-	# as we don't know if that's the only measurement to take, 
-	# return None if the cloudfront couldn't be found 
-	return None
+# def parse_egbc_url(url): 
+# 	# get the first url 
+# 	url = url.split(', ')[0] 
+# 	# split it by '/' 
+# 	splitted_url = url.split('/') 
+# 	# loop over the elements to find where 'cloudfront' url begins 
+# 	for idx, part in enumerate(splitted_url): 
+# 		if 'cloudfront' in part: 
+# 			# add the HTTP scheme and concatenate the rest of the URL 
+# 			# then return the processed url 
+# 			return 'https://' + '/'.join(splitted_url[idx:]) 
+# 	# as we don't know if that's the only measurement to take, 
+# 	# return None if the cloudfront couldn't be found 
+# 	return None
 
 # Define the Chrome webdriver options
 options = webdriver.ChromeOptions() 
@@ -46,10 +48,31 @@ ActionChains(driver).move_to_element(acknowledge_checkbox).click(acknowledge_che
 ActionChains(driver).move_to_element(disclaimer_button).click(disclaimer_button).perform()
 time.sleep(1)
 
+def add_values():
+    table = driver.find_elements(By.XPATH, "/html/body/div[1]/div[3]/div/div[2]/div/div[2]/table")
+    num_row = len(driver.find_elements(By.XPATH, "/html/body/div[1]/div[3]/div/div[2]/div/div[2]/table/tbody/tr"))
+    cells = driver.find_elements(By.XPATH, "/html/body/div[1]/div[3]/div/div[2]/div/div[2]/table/tbody/tr/td")
+    num_col = int(len(cells)/num_row)
 
-table = driver.find_elements(By.XPATH, "/html/body/div[1]/div[3]/div/div[2]/div/div[2]/table")
-num_row = len(driver.find_elements(By.XPATH, "/html/body/div[1]/div[3]/div/div[2]/div/div[2]/table/tbody/tr"))
-num_col = int(len(driver.find_elements(By.XPATH, "/html/body/div[1]/div[3]/div/div[2]/div/div[2]/table/tbody/tr/td"))/num_row)
+    # create output file
+    outputcolumns = ["Unknown", "Permit Number", "Legal Name", "Also doing business as", "Status", "Main Location"]
+    current_datetime = datetime.now().strftime("%Y-%m-%d %H-%M")
+    filename = current_datetime +" - Selenium.csv"
+
+    with open(filename,'w',newline='') as f:
+        csv_writer = writer(f)
+        for i in range(0, num_row, 6):
+            out_row = []
+            for j in range(1,6):
+                value = cells[i+j].text
+                out_row.append(value)
+                # print(out_row)
+            csv_writer.writerow(out_row)
+
+time.sleep(5)
+
+next_page = driver.find_element(By.XPATH, "/html/body/div[1]/div[3]/div/div[2]/div/div[2]/div/a[3]")
+ActionChains(driver).move_to_element(next_page).click(next_page).perform()
 
 
 # rows = driver.find_elements(By.XPATH, "/html/body/div[1]/div[3]/div/div[2]/div/div[2]/table/tbody/tr[1]")
